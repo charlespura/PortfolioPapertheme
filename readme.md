@@ -2,8 +2,8 @@
 
 A minimalist, tactile portfolio website with a distinctive paper-and-ink aesthetic. Built with HTML, Tailwind CSS, and a custom theme system that celebrates monochromatic design.
 
-![Light Theme Preview]
-![Dark Theme Preview]
+![Light Theme Preview](https://via.placeholder.com/800x400/faf9f6/111111?text=Light+Mode+Preview)
+![Dark Theme Preview](https://via.placeholder.com/800x400/1a1a1a/ededed?text=Dark+Mode+Preview)
 
 ## ✦ Overview
 
@@ -36,23 +36,7 @@ The theme toggle:
 - Updates all CSS variables dynamically
 - Maintains visual consistency across all components
 
-## ✦ Animation & Parallax Features
+## ✦ Project Structure
 
-### Scroll-Triggered Animations
-- Elements fade and slide in when they enter the viewport
-- Staggered delays for sequential reveals (0.1s to 0.6s)
-- Multiple animation types: slide-left, slide-right, slide-up, scale
 
-### Parallax Effects
-- **Scroll-based parallax** – Background patterns and elements move at different speeds
-- **Mouse move parallax** – 3D tilt effects that follow cursor movement
-- **Floating paper elements** – Abstract paper shapes drift diagonally
-- **Depth layers** – Elements positioned at different Z-depths (20px, 40px, 60px)
-- **Section backgrounds** – Subtle diagonal patterns that move independently
-
-### Interactive Hover Effects
-- Cards lift and cast stronger shadows
-- Project icons rotate and scale
-- Stamp badges float and pulse
-- Buttons have ripple effects
-- Text links underline and slide
+Charles Pura 
