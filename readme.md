@@ -2,8 +2,9 @@
 
 A minimalist, tactile portfolio website with a distinctive paper-and-ink aesthetic. Built with HTML, Tailwind CSS, and a custom theme system that celebrates monochromatic design.
 
-![Light Theme Preview](https://via.placeholder.com/800x400/faf9f6/111111?text=Light+Mode+Preview)
-![Dark Theme Preview](https://via.placeholder.com/800x400/1a1a1a/ededed?text=Dark+Mode+Preview)
+![Light Theme Preview]
+
+![Dark Theme Preview]
 
 ## ✦ Overview
 
