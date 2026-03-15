@@ -2,8 +2,8 @@
 
 A minimalist, tactile portfolio website with a distinctive paper-and-ink aesthetic. Built with HTML, Tailwind CSS, and a custom theme system that celebrates monochromatic design.
 
-![Light Theme Preview](https://via.placeholder.com/800x400/faf9f6/111111?text=Light+Mode+Preview)
-![Dark Theme Preview](https://via.placeholder.com/800x400/1a1a1a/ededed?text=Dark+Mode+Preview)
+![Light Theme Preview]
+![Dark Theme Preview]
 
 ## ✦ Overview
 
@@ -15,6 +15,9 @@ paper & pencil is a digital portfolio that embodies the philosophy of its creato
 - **Tactile Aesthetic** – Paper-like cards with sketchy borders, drop shadows, and hand-drawn elements
 - **Fully Responsive** – Adapts gracefully from mobile to desktop
 - **Smooth Animations** – Subtle fade-ins and hover effects using Animate.css
+- **Scroll-Triggered Animations** – Elements animate as they enter the viewport
+- **Advanced Parallax Effects** – Multi-layered parallax with mouse and scroll interactions
+- **3D Depth Layers** – Elements positioned at different depths for immersive experience
 - **Accessible Navigation** – Smooth scroll to sections with clear visual feedback
 - **No Dependencies** – Pure HTML/CSS/JS with Tailwind for utility classes
 
@@ -33,7 +36,23 @@ The theme toggle:
 - Updates all CSS variables dynamically
 - Maintains visual consistency across all components
 
-## ✦ Project Structure
+## ✦ Animation & Parallax Features
 
+### Scroll-Triggered Animations
+- Elements fade and slide in when they enter the viewport
+- Staggered delays for sequential reveals (0.1s to 0.6s)
+- Multiple animation types: slide-left, slide-right, slide-up, scale
 
-Charles Pura 
+### Parallax Effects
+- **Scroll-based parallax** – Background patterns and elements move at different speeds
+- **Mouse move parallax** – 3D tilt effects that follow cursor movement
+- **Floating paper elements** – Abstract paper shapes drift diagonally
+- **Depth layers** – Elements positioned at different Z-depths (20px, 40px, 60px)
+- **Section backgrounds** – Subtle diagonal patterns that move independently
+
+### Interactive Hover Effects
+- Cards lift and cast stronger shadows
+- Project icons rotate and scale
+- Stamp badges float and pulse
+- Buttons have ripple effects
+- Text links underline and slide

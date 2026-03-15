@@ -22,6 +22,7 @@
       --nav-bg: #ffffff;
       --stamp-bg: #ffffff;
       --accent-bg: #f0f0f0;
+      --parallax-speed: 0.5;
     }
 
     /* dark theme (simple & clean — no extra high contrast) */
@@ -44,6 +45,7 @@
       color: var(--text-primary);
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       transition: background-color 0.25s ease, color 0.2s ease;
+      overflow-x: hidden;
     }
 
     /* paper card using variables */
@@ -70,6 +72,8 @@
       border-bottom: 2px solid var(--border-strong);
       box-shadow: 0 4px 0 var(--border-soft);
       animation: slideInDown 0.5s ease-out;
+      position: relative;
+      z-index: 100;
     }
 
     .nav-link {
@@ -132,6 +136,8 @@
       border: 3px solid var(--border-strong);
       filter: grayscale(100%);
       transition: filter 0.3s, transform 0.3s, box-shadow 0.3s;
+      transform-style: preserve-3d;
+      will-change: transform;
     }
     .profile-sketch:hover {
       filter: grayscale(20%);
@@ -298,17 +304,6 @@
       }
     }
 
-    @keyframes rotateIn {
-      from {
-        transform: rotate(-10deg) scale(0.9);
-        opacity: 0;
-      }
-      to {
-        transform: rotate(0) scale(1);
-        opacity: 1;
-      }
-    }
-
     /* scroll animation classes */
     .scroll-animation {
       opacity: 0;
@@ -330,18 +325,112 @@
     .scroll-animation.scale {
       transform: scale(0.9);
     }
-    .scroll-animation.rotate {
-      transform: rotate(-5deg) scale(0.95);
-    }
 
     .scroll-animation.visible {
       opacity: 1;
-      transform: translateX(0) translateY(0) scale(1) rotate(0);
+      transform: translateX(0) translateY(0) scale(1);
+    }
+
+    /* parallax elements */
+    .parallax {
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .parallax-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 120%;
+      background: repeating-linear-gradient(
+        45deg,
+        var(--border-strong) 0px,
+        var(--border-strong) 1px,
+        transparent 1px,
+        transparent 20px
+      );
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+      transform: translateY(0);
+      will-change: transform;
+    }
+
+    .parallax-layer {
+      position: relative;
+      z-index: 1;
+      transform: translateZ(0);
+    }
+
+    .parallax-slow {
+      transition: transform 0.1s ease-out;
+    }
+
+    .parallax-medium {
+      transition: transform 0.05s ease-out;
+    }
+
+    .parallax-fast {
+      transition: transform 0.02s ease-out;
+    }
+
+    /* floating paper pieces */
+    .paper-piece {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-strong);
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+      transform: rotate(var(--rotate)) translateZ(0);
+      will-change: transform;
+    }
+
+    .paper-piece-1 {
+      top: 20%;
+      left: -50px;
+      width: 150px;
+      height: 150px;
+      --rotate: 15deg;
+    }
+
+    .paper-piece-2 {
+      bottom: 30%;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      --rotate: -10deg;
+    }
+
+    .paper-piece-3 {
+      top: 60%;
+      left: 10%;
+      width: 80px;
+      height: 80px;
+      --rotate: 45deg;
+    }
+
+    .paper-piece-4 {
+      bottom: 10%;
+      left: 20%;
+      width: 120px;
+      height: 120px;
+      --rotate: -20deg;
     }
 
     /* project card animations */
     .project-card {
       transition: all 0.3s ease;
+      transform-style: preserve-3d;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px) rotateX(2deg) rotateY(2deg);
     }
 
     /* stamp animations */
@@ -360,56 +449,80 @@
     .stagger-5 { transition-delay: 0.5s; }
     .stagger-6 { transition-delay: 0.6s; }
 
+    /* mouse move parallax containers */
+    .parallax-container {
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+
+    .parallax-depth-1 {
+      transform: translateZ(20px);
+    }
+    .parallax-depth-2 {
+      transform: translateZ(40px);
+    }
+    .parallax-depth-3 {
+      transform: translateZ(60px);
+    }
+
     @media (max-width: 640px) {
       .theme-toggle { font-size: 1.2rem; padding: 0.2rem 0.5rem; }
+      .paper-piece { display: none; }
     }
   </style>
 </head>
-<body class="antialiased">
+<body class="antialiased parallax-container">
+  <!-- floating paper pieces (background parallax) -->
+  <div class="paper-piece paper-piece-1 parallax-slow" id="paper1"></div>
+  <div class="paper-piece paper-piece-2 parallax-medium" id="paper2"></div>
+  <div class="paper-piece paper-piece-3 parallax-fast" id="paper3"></div>
+  <div class="paper-piece paper-piece-4 parallax-slow" id="paper4"></div>
+
   <!-- PAPER NAVBAR with theme toggle -->
-  <nav class="navbar-paper sticky top-0 z-30 border-b-2">
+  <nav class="navbar-paper sticky top-0 z-30 border-b-2 parallax-depth-2">
     <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between flex-wrap gap-2">
       <!-- logo / monogram -->
-      <a href="#" class="text-2xl font-black tracking-tighter border-2 border-[var(--border-strong)] px-3 py-1 bg-[var(--card-bg)] text-[var(--text-primary)] hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 hover:scale-105 hover:-rotate-1">P︎︎︎+</a>
+      <a href="#" class="text-2xl font-black tracking-tighter border-2 border-[var(--border-strong)] px-3 py-1 bg-[var(--card-bg)] text-[var(--text-primary)] hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 hover:scale-105 hover:-rotate-1 parallax-depth-1">P︎︎︎+</a>
       
       <div class="flex items-center gap-1 md:gap-4 text-sm md:text-base font-medium">
-        <a href="#home" class="nav-link">home</a>
-        <a href="#work" class="nav-link">work</a>
-        <a href="#about" class="nav-link">about</a>
-        <a href="#contact" class="nav-link">contact</a>
+        <a href="#home" class="nav-link parallax-depth-1">home</a>
+        <a href="#work" class="nav-link parallax-depth-1">work</a>
+        <a href="#about" class="nav-link parallax-depth-1">about</a>
+        <a href="#contact" class="nav-link parallax-depth-1">contact</a>
         <!-- theme toggle button (simple light/dark) -->
-        <button id="themeToggle" class="theme-toggle" aria-label="switch theme">☼</button>
+        <button id="themeToggle" class="theme-toggle parallax-depth-2" aria-label="switch theme">☼</button>
       </div>
       <!-- stamp-like extra -->
-      <span class="hidden sm:inline-block project-stamp">est. 2025</span>
+      <span class="hidden sm:inline-block project-stamp parallax-depth-1">est. 2025</span>
     </div>
   </nav>
 
-  <main class="max-w-6xl mx-auto px-4 md:px-6 py-8">
+  <main class="max-w-6xl mx-auto px-4 md:px-6 py-8 relative z-10">
 
     <!-- HERO / HOME SECTION -->
-    <section id="home" class="mb-24 scroll-mt-24">
-      <div class="grid md:grid-cols-3 gap-8 items-center">
+    <section id="home" class="mb-24 scroll-mt-24 relative parallax">
+      <div class="parallax-bg" id="hero-bg"></div>
+      <div class="grid md:grid-cols-3 gap-8 items-center parallax-layer">
         <!-- left side: profile sketch & name -->
-        <div class="md:col-span-1 flex flex-col items-center md:items-start space-y-4 scroll-animation slide-left visible" id="hero-left">
-          <div class="relative inline-block">
-            <img src="/picture/ch.jpg" alt="profile sketch" class="profile-sketch w-48 h-48 object-cover rounded-full">
-            <span class="absolute -bottom-2 -right-2 bg-[var(--card-bg)] border-2 border-[var(--border-strong)] px-3 py-1 text-xs font-bold rotate-3 hover:rotate-6 transition-all duration-300 hover:scale-110">✎ pencil</span>
+        <div class="md:col-span-1 flex flex-col items-center md:items-start space-y-4 scroll-animation slide-left visible parallax-depth-2" id="hero-left">
+          <div class="relative inline-block parallax-depth-3" id="profile-container">
+            <img src="/picture/ch.jpg" alt="profile sketch" class="profile-sketch w-48 h-48 object-cover rounded-full" id="profile-img">
+            <span class="absolute -bottom-2 -right-2 bg-[var(--card-bg)] border-2 border-[var(--border-strong)] px-3 py-1 text-xs font-bold rotate-3 hover:rotate-6 transition-all duration-300 hover:scale-110 parallax-depth-2">✎ pencil</span>
           </div>
-          <h1 class="text-4xl font-black tracking-tight hover:scale-105 transition-transform duration-300 origin-left">Alex Mercer</h1>
-          <p class="text-xl border-l-4 border-[var(--border-strong)] pl-3 hover:pl-4 transition-all duration-300">designer &<br>paper architect</p>
+          <h1 class="text-4xl font-black tracking-tight hover:scale-105 transition-transform duration-300 origin-left parallax-depth-1" id="hero-name">Alex Mercer</h1>
+          <p class="text-xl border-l-4 border-[var(--border-strong)] pl-3 hover:pl-4 transition-all duration-300 parallax-depth-1" id="hero-title">designer &<br>paper architect</p>
         </div>
         <!-- right side: tagline + statement -->
-        <div class="md:col-span-2 paper-card p-8 space-y-4 scroll-animation slide-right visible stagger-2" id="hero-right">
-          <span class="project-stamp inline-block">✦ featured ✦</span>
-          <p class="text-2xl md:text-3xl font-light leading-tight">"I build <span class="bg-[var(--border-strong)] text-[var(--bg-paper)] px-2 hover:bg-[var(--bg-paper)] hover:text-[var(--border-strong)] transition-all duration-300">black & white</span> experiences that feel like turning the page of a beloved book."</p>
+        <div class="md:col-span-2 paper-card p-8 space-y-4 scroll-animation slide-right visible stagger-2 parallax-depth-2" id="hero-right">
+          <span class="project-stamp inline-block parallax-depth-1">✦ featured ✦</span>
+          <p class="text-2xl md:text-3xl font-light leading-tight parallax-depth-1">"I build <span class="bg-[var(--border-strong)] text-[var(--bg-paper)] px-2 hover:bg-[var(--bg-paper)] hover:text-[var(--border-strong)] transition-all duration-300">black & white</span> experiences that feel like turning the page of a beloved book."</p>
           <div class="section-divider !bg-transparent !h-auto py-2"></div>
           <div class="flex gap-3">
-            <span class="border border-[var(--border-strong)] px-3 py-1 text-sm hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 cursor-default">minimal</span>
-            <span class="border border-[var(--border-strong)] px-3 py-1 text-sm hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 cursor-default">tactile</span>
-            <span class="border border-[var(--border-strong)] px-3 py-1 text-sm hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 cursor-default">ink & paper</span>
+            <span class="border border-[var(--border-strong)] px-3 py-1 text-sm hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 cursor-default parallax-depth-1">minimal</span>
+            <span class="border border-[var(--border-strong)] px-3 py-1 text-sm hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 cursor-default parallax-depth-1">tactile</span>
+            <span class="border border-[var(--border-strong)] px-3 py-1 text-sm hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 cursor-default parallax-depth-1">ink & paper</span>
           </div>
-          <a href="#work" class="btn-outline-bw inline-block w-max text-sm">see portfolio →</a>
+          <a href="#work" class="btn-outline-bw inline-block w-max text-sm parallax-depth-2" id="hero-btn">see portfolio →</a>
         </div>
       </div>
     </section>
@@ -418,89 +531,93 @@
     <hr class="dashed my-16 scroll-animation scale" id="divider">
 
     <!-- WORK SECTION -->
-    <section id="work" class="mb-24 scroll-mt-24">
-      <h2 class="text-5xl font-black mb-2 scroll-animation slide-left" id="work-title">selected work</h2>
-      <span class="text-sm border border-[var(--border-strong)] px-2 py-0.5 -top-2 relative bg-[var(--card-bg)] scroll-animation slide-right stagger-1" id="work-subtitle">ink on paper</span>
+    <section id="work" class="mb-24 scroll-mt-24 relative parallax">
+      <div class="parallax-bg" id="work-bg" style="background: repeating-linear-gradient(45deg, var(--border-strong) 0px, var(--border-strong) 1px, transparent 1px, transparent 25px);"></div>
+      <div class="parallax-layer">
+        <h2 class="text-5xl font-black mb-2 scroll-animation slide-left parallax-depth-1" id="work-title">selected work</h2>
+        <span class="text-sm border border-[var(--border-strong)] px-2 py-0.5 -top-2 relative bg-[var(--card-bg)] scroll-animation slide-right stagger-1 parallax-depth-1" id="work-subtitle">ink on paper</span>
 
-      <!-- project grid -->
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-        <!-- project 1 -->
-        <div class="paper-card p-5 project-card scroll-animation slide-up stagger-1" id="project-1">
-          <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon">✻</div>
-          <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">folioscope</h3>
-          <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">editorial</span><span class="project-stamp">print</span></p>
-          <p class="mt-3 text-[var(--text-primary)]/70">A handmade artist book exploring light and shadow through layered tracing paper.</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2024</span>
-            <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+        <!-- project grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+          <!-- project 1 -->
+          <div class="paper-card p-5 project-card scroll-animation slide-up stagger-1 parallax-depth-1" id="project-1">
+            <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon parallax-depth-2">✻</div>
+            <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">folioscope</h3>
+            <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">editorial</span><span class="project-stamp">print</span></p>
+            <p class="mt-3 text-[var(--text-primary)]/70">A handmade artist book exploring light and shadow through layered tracing paper.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2024</span>
+              <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+            </div>
           </div>
-        </div>
-        <!-- project 2 -->
-        <div class="paper-card p-5 project-card scroll-animation slide-up stagger-2" id="project-2">
-          <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon">◈</div>
-          <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">graphite /16</h3>
-          <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">product</span><span class="project-stamp">ui</span></p>
-          <p class="mt-3 text-[var(--text-primary)]/70">Modular icon system made entirely with lines and dots — monochrome but expressive.</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2024</span>
-            <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+          <!-- project 2 -->
+          <div class="paper-card p-5 project-card scroll-animation slide-up stagger-2 parallax-depth-2" id="project-2">
+            <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon parallax-depth-3">◈</div>
+            <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">graphite /16</h3>
+            <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">product</span><span class="project-stamp">ui</span></p>
+            <p class="mt-3 text-[var(--text-primary)]/70">Modular icon system made entirely with lines and dots — monochrome but expressive.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2024</span>
+              <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+            </div>
           </div>
-        </div>
-        <!-- project 3 -->
-        <div class="paper-card p-5 project-card scroll-animation slide-up stagger-3" id="project-3">
-          <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon">☲</div>
-          <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">type specimen</h3>
-          <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">typography</span></p>
-          <p class="mt-3 text-[var(--text-primary)]/70">A fold-out newspaper featuring original typeface “Pencilmono” in use.</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2023</span>
-            <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+          <!-- project 3 -->
+          <div class="paper-card p-5 project-card scroll-animation slide-up stagger-3 parallax-depth-1" id="project-3">
+            <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon parallax-depth-2">☲</div>
+            <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">type specimen</h3>
+            <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">typography</span></p>
+            <p class="mt-3 text-[var(--text-primary)]/70">A fold-out newspaper featuring original typeface “Pencilmono” in use.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2023</span>
+              <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+            </div>
           </div>
-        </div>
-        <!-- project 4 -->
-        <div class="paper-card p-5 project-card scroll-animation slide-up stagger-4" id="project-4">
-          <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon">▣</div>
-          <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">daily planner</h3>
-          <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">design</span><span class="project-stamp">analog</span></p>
-          <p class="mt-3 text-[var(--text-primary)]/70">Minimalist planner system with dotted grid and lay-flat binding.</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2023</span>
-            <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+          <!-- project 4 -->
+          <div class="paper-card p-5 project-card scroll-animation slide-up stagger-4 parallax-depth-2" id="project-4">
+            <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon parallax-depth-3">▣</div>
+            <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">daily planner</h3>
+            <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">design</span><span class="project-stamp">analog</span></p>
+            <p class="mt-3 text-[var(--text-primary)]/70">Minimalist planner system with dotted grid and lay-flat binding.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2023</span>
+              <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+            </div>
           </div>
-        </div>
-        <!-- project 5 -->
-        <div class="paper-card p-5 project-card scroll-animation slide-up stagger-5" id="project-5">
-          <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon">⬚</div>
-          <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">unfold /02</h3>
-          <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">exhibition</span></p>
-          <p class="mt-3 text-[var(--text-primary)]/70">Spatial design for a pop-up gallery using paper screens and shadows.</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2022</span>
-            <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+          <!-- project 5 -->
+          <div class="paper-card p-5 project-card scroll-animation slide-up stagger-5 parallax-depth-1" id="project-5">
+            <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon parallax-depth-2">⬚</div>
+            <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">unfold /02</h3>
+            <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">exhibition</span></p>
+            <p class="mt-3 text-[var(--text-primary)]/70">Spatial design for a pop-up gallery using paper screens and shadows.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2022</span>
+              <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+            </div>
           </div>
-        </div>
-        <!-- project 6 -->
-        <div class="paper-card p-5 project-card scroll-animation slide-up stagger-6" id="project-6">
-          <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon">◉</div>
-          <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">sketchbooks</h3>
-          <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">archive</span></p>
-          <p class="mt-3 text-[var(--text-primary)]/70">A 200-page collection of daily observations, drawings, and notes.</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2021-24</span>
-            <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+          <!-- project 6 -->
+          <div class="paper-card p-5 project-card scroll-animation slide-up stagger-6 parallax-depth-2" id="project-6">
+            <div class="h-40 bg-[var(--border-soft)]/10 border border-[var(--border-strong)] mb-4 flex items-center justify-center text-6xl font-black project-icon parallax-depth-3">◉</div>
+            <h3 class="text-2xl font-bold tracking-tight hover:underline hover:underline-offset-4 transition-all duration-300">sketchbooks</h3>
+            <p class="text-sm mt-1 flex gap-2"><span class="project-stamp">archive</span></p>
+            <p class="mt-3 text-[var(--text-primary)]/70">A 200-page collection of daily observations, drawings, and notes.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs border-b border-[var(--border-strong)] hover:border-b-2 transition-all duration-300">2021-24</span>
+              <span class="text-lg group cursor-pointer hover:translate-x-2 transition-transform duration-300">→<span class="invisible group-hover:visible ml-1 text-sm">details</span></span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ABOUT SECTION -->
-    <section id="about" class="mb-24 scroll-mt-24">
-      <div class="grid md:grid-cols-3 gap-10">
+    <section id="about" class="mb-24 scroll-mt-24 relative parallax">
+      <div class="parallax-bg" id="about-bg" style="background: repeating-linear-gradient(-45deg, var(--border-strong) 0px, var(--border-strong) 1px, transparent 1px, transparent 30px);"></div>
+      <div class="grid md:grid-cols-3 gap-10 parallax-layer">
         <div class="md:col-span-1">
-          <h2 class="text-5xl font-black scroll-animation slide-left" id="about-title">about<br>the studio</h2>
-          <div class="section-divider my-4 w-16 scroll-animation slide-left stagger-1" id="about-divider"></div>
+          <h2 class="text-5xl font-black scroll-animation slide-left parallax-depth-2" id="about-title">about<br>the studio</h2>
+          <div class="section-divider my-4 w-16 scroll-animation slide-left stagger-1 parallax-depth-1" id="about-divider"></div>
         </div>
-        <div class="md:col-span-2 space-y-6 text-lg paper-card p-8 scroll-animation slide-right stagger-2" id="about-content">
+        <div class="md:col-span-2 space-y-6 text-lg paper-card p-8 scroll-animation slide-right stagger-2 parallax-depth-3" id="about-content">
           <p class="leading-relaxed hover:translate-x-1 transition-transform duration-300">Paper + Pencil is a minimal design practice focused on tactile, monochromatic storytelling. Founded in 2021, we believe that constraints (black & white, paper, ink) breed creativity. Every project starts with a sketch on paper — no screens allowed until the idea is solid.</p>
           <div class="flex flex-wrap gap-4 items-center border-y border-[var(--border-strong)] py-4 hover:border-x hover:px-4 transition-all duration-300">
             <span class="font-bold">exhibitions:</span>
@@ -509,18 +626,19 @@
           </div>
           <p class="text-sm hover:translate-x-1 transition-transform duration-300">— Clients include small presses, cultural foundations, and independent authors who appreciate the grain of paper.</p>
           <div class="flex items-center gap-4">
-            <span class="h-10 w-10 border-2 border-[var(--border-strong)] flex items-center justify-center text-xl font-bold hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 hover:scale-110 cursor-default">A</span>
-            <span class="h-10 w-10 border-2 border-[var(--border-strong)] flex items-center justify-center text-xl font-bold hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 hover:scale-110 cursor-default">M</span>
-            <span class="text-xs uppercase tracking-widest hover:tracking-wider transition-all duration-300">since 2021</span>
+            <span class="h-10 w-10 border-2 border-[var(--border-strong)] flex items-center justify-center text-xl font-bold hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 hover:scale-110 cursor-default parallax-depth-1">A</span>
+            <span class="h-10 w-10 border-2 border-[var(--border-strong)] flex items-center justify-center text-xl font-bold hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 hover:scale-110 cursor-default parallax-depth-2">M</span>
+            <span class="text-xs uppercase tracking-widest hover:tracking-wider transition-all duration-300 parallax-depth-1">since 2021</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- CONTACT SECTION -->
-    <section id="contact" class="mb-12 scroll-mt-24">
-      <div class="paper-card p-8 border-2 border-[var(--border-strong)] flex flex-col md:flex-row gap-8 justify-between items-start scroll-animation scale" id="contact-card">
-        <div class="scroll-animation slide-left stagger-1" id="contact-left">
+    <section id="contact" class="mb-12 scroll-mt-24 relative parallax">
+      <div class="parallax-bg" id="contact-bg" style="background: repeating-linear-gradient(45deg, var(--border-strong) 0px, var(--border-strong) 2px, transparent 2px, transparent 20px); opacity: 0.03;"></div>
+      <div class="paper-card p-8 border-2 border-[var(--border-strong)] flex flex-col md:flex-row gap-8 justify-between items-start scroll-animation scale parallax-depth-2" id="contact-card">
+        <div class="scroll-animation slide-left stagger-1 parallax-depth-1" id="contact-left">
           <h2 class="text-3xl font-black underline wavy hover:no-underline transition-all duration-300">write to us</h2>
           <p class="mt-2 max-w-md hover:translate-x-1 transition-transform duration-300">For commissions, catalog requests, or just to say hello — we answer every letter.</p>
           <div class="mt-6 space-y-1 border-l-4 border-[var(--border-strong)] pl-3">
@@ -529,18 +647,18 @@
             <p class="font-mono text-sm hover:translate-x-2 transition-transform duration-300 hover:underline">451  Broome St, NY 10013</p>
           </div>
         </div>
-        <div class="flex flex-col items-end scroll-animation slide-right stagger-2" id="contact-right">
+        <div class="flex flex-col items-end scroll-animation slide-right stagger-2 parallax-depth-3" id="contact-right">
           <div class="flex gap-2">
             <span class="project-stamp rotate-6">snail mail</span>
             <span class="project-stamp -rotate-3">pigeon</span>
           </div>
-          <button class="btn-outline-bw mt-6 text-xl px-8 hover:scale-105">✉ send</button>
+          <button class="btn-outline-bw mt-6 text-xl px-8 hover:scale-105 parallax-depth-2" id="contact-btn">✉ send</button>
         </div>
       </div>
     </section>
 
     <!-- footer with Charles Pura credit -->
-    <footer class="border-t-2 border-[var(--border-strong)] pt-6 text-sm flex flex-wrap justify-between text-[var(--text-primary)]/70 scroll-animation slide-up" id="footer">
+    <footer class="border-t-2 border-[var(--border-strong)] pt-6 text-sm flex flex-wrap justify-between text-[var(--text-primary)]/70 scroll-animation slide-up parallax-depth-1" id="footer">
       <span class="hover:underline hover:underline-offset-4 transition-all duration-300">© 2025 paper+pencil — all rights rest</span>
       <span class="flex gap-3">
         <a href="#" class="underline hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 px-1 hover:scale-105 inline-block">instagram</a>
@@ -549,7 +667,7 @@
     </footer>
     
     <!-- Charles Pura credit line -->
-    <div class="credit-signature text-[var(--text-primary)]/60 max-w-6xl mx-auto px-4 md:px-6 mt-4 scroll-animation slide-up stagger-1" id="credit">
+    <div class="credit-signature text-[var(--text-primary)]/60 max-w-6xl mx-auto px-4 md:px-6 mt-4 scroll-animation slide-up stagger-1 parallax-depth-1" id="credit">
       crafted by <a href="#" class="hover:bg-[var(--border-strong)] hover:text-[var(--bg-paper)] transition-all duration-300 px-1 hover:scale-105 inline-block">Charles Pura</a> · paper & pencil edition
     </div>
   </main>
@@ -618,7 +736,7 @@
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
             
-            // Optional: add a subtle pulse effect when element becomes visible
+            // add a subtle pulse effect when element becomes visible
             entry.target.style.transition = 'all 0.8s ease-out';
             
             // If it's a project card, add a little extra flair
@@ -642,14 +760,107 @@
         observer.observe(el);
       });
 
-      // Parallax effect on scroll for profile image
+      // PARALLAX EFFECTS
+      
+      // 1. Scroll-based parallax for background elements
       window.addEventListener('scroll', () => {
-        const profileImg = document.querySelector('.profile-sketch');
         const scrolled = window.pageYOffset;
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        const scrollPercent = scrolled / maxScroll;
+        
+        // Parallax backgrounds
+        document.querySelectorAll('.parallax-bg').forEach(bg => {
+          bg.style.transform = `translateY(${scrolled * 0.2}px)`;
+        });
+        
+        // Floating paper pieces
+        document.getElementById('paper1').style.transform = `translate(${scrolled * 0.1}px, ${scrolled * 0.05}px) rotate(15deg)`;
+        document.getElementById('paper2').style.transform = `translate(${scrolled * -0.15}px, ${scrolled * 0.1}px) rotate(-10deg)`;
+        document.getElementById('paper3').style.transform = `translate(${scrolled * 0.05}px, ${scrolled * -0.1}px) rotate(45deg)`;
+        document.getElementById('paper4').style.transform = `translate(${scrolled * -0.08}px, ${scrolled * 0.15}px) rotate(-20deg)`;
+        
+        // Profile image subtle movement
+        const profileImg = document.getElementById('profile-img');
         if (profileImg) {
-          // Subtle parallax effect
-          profileImg.style.transform = `translateY(${scrolled * 0.05}px)`;
+          profileImg.style.transform = `translateY(${scrolled * 0.05}px) scale(${1 + (scrollPercent * 0.05)})`;
         }
+        
+        // Hero title movement
+        const heroName = document.getElementById('hero-name');
+        if (heroName) {
+          heroName.style.transform = `translateX(${scrolled * 0.03}px)`;
+        }
+        
+        // Project cards staggered parallax
+        document.querySelectorAll('.project-card').forEach((card, index) => {
+          const speed = 0.02 + (index * 0.01);
+          card.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+      });
+
+      // 2. Mouse move parallax (3D tilt effect)
+      document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth - 0.5;
+        const mouseY = e.clientY / window.innerHeight - 0.5;
+        
+        // Hero section 3D effect
+        const heroCard = document.getElementById('hero-right');
+        if (heroCard) {
+          heroCard.style.transform = `rotateY(${mouseX * 5}deg) rotateX(${mouseY * -3}deg) translateZ(20px)`;
+        }
+        
+        // Profile image 3D effect
+        const profileContainer = document.getElementById('profile-container');
+        if (profileContainer) {
+          profileContainer.style.transform = `rotateY(${mouseX * 10}deg) rotateX(${mouseY * -5}deg) translateZ(30px)`;
+        }
+        
+        // Project cards with different depths
+        document.querySelectorAll('.project-card').forEach((card, index) => {
+          const depth = 5 + (index * 2);
+          card.style.transform = `rotateY(${mouseX * depth}deg) rotateX(${mouseY * -depth * 0.5}deg) translateZ(${10 + index * 5}px)`;
+        });
+        
+        // Navbar items
+        document.querySelectorAll('.nav-link').forEach((link, index) => {
+          const depth = 3 + (index * 1);
+          link.style.transform = `translate(${mouseX * depth}px, ${mouseY * depth}px)`;
+        });
+        
+        // Theme toggle button
+        const themeBtn = document.getElementById('themeToggle');
+        if (themeBtn) {
+          themeBtn.style.transform = `translate(${mouseX * 8}px, ${mouseY * 8}px) rotate(${mouseX * 10}deg)`;
+        }
+        
+        // Contact button
+        const contactBtn = document.getElementById('contact-btn');
+        if (contactBtn) {
+          contactBtn.style.transform = `translate(${mouseX * 6}px, ${mouseY * 6}px)`;
+        }
+      });
+
+      // 3. Depth of field effect on scroll
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        
+        document.querySelectorAll('.parallax-depth-1').forEach(el => {
+          el.style.transform = `translateZ(${20 - scrolled * 0.01}px)`;
+        });
+        
+        document.querySelectorAll('.parallax-depth-2').forEach(el => {
+          el.style.transform = `translateZ(${40 - scrolled * 0.02}px)`;
+        });
+        
+        document.querySelectorAll('.parallax-depth-3').forEach(el => {
+          el.style.transform = `translateZ(${60 - scrolled * 0.03}px)`;
+        });
+      });
+
+      // 4. Lazy loading animation with progressive enhancement
+      const images = document.querySelectorAll('img');
+      images.forEach(img => {
+        img.loading = 'lazy';
       });
 
     })();
